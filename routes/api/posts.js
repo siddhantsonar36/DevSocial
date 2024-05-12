@@ -240,4 +240,46 @@ router.delete('/comment/:id/:comment_id', auth, async (req, res) => {
   }
 });
 
+// @route    like a comment api/posts/:comment_id/:id
+// @desc     delete a comment
+// @access   private
+
+router.put('/likecomment/:post_id/:comment_id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.post_id);
+
+    //pull out comment
+    const comment = post.comments.find(
+      (comment) => comment.id === req.params.comment_id
+    );
+
+    //make sure comment exist
+    if (!comment) {
+      return res.status(404).json({ msg: 'comment does not exist' });
+    }
+
+    //check if the comment is already been liked
+    if (
+      comment.comentLikes.filter((like) => like.user.toString() === req.user.id).length >
+      0
+    ) {
+      const removeIndex = comment.comentLikes
+      .map((like) => like.user.toString())
+      .indexOf(req.user.id);
+
+      comment.comentLikes.splice(removeIndex, 1);
+    }else{
+      comment.comentLikes.unshift({ user: req.user.id });
+    }
+
+
+    await post.save();
+
+    res.json(post.comments);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('SERVER ERROR');
+  }
+});
+
 module.exports = router;

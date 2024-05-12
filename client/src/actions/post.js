@@ -44,6 +44,22 @@ export const addLike = (id) => async (dispatch) => {
     });
   }
 };
+// add comment like 
+export const addCommentLike = (postId, commentId) => async (dispatch) => {
+  try {
+    const res = await api.put(`/posts/likecomment/${postId}/${commentId}`);
+
+    dispatch({
+      type: ADD_COMMENT,
+      payload: res.data,
+    });
+  } catch (err) {
+    dispatch({
+      type: POST_ERROR,
+      payload: { msg: err.response.statusText, status: err.response.status },
+    });
+  }
+};
 
 // Remove like
 export const removeLike = (id) => async (dispatch) => {
